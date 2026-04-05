@@ -67,6 +67,22 @@ async def verify_magic_link(token: str, db: Session = Depends(get_db)):
     return AuthVerifyResponse(token=session_token, user_id=user.id, email=user.email)
 
 
+@router.post("/dev-login", response_model=AuthVerifyResponse)
+async def dev_login(body: MagicLinkRequest, db: Session = Depends(get_db)):
+    """Dev-only: log in directly without sending an email."""
+    user = db.query(User).filter(User.email == body.email).first()
+    if not user:
+        user = User(email=body.email)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        logger.info(f"Dev login — new user created: {body.email}")
+
+    session_token = create_session_token(user.id, user.email)
+    logger.info(f"Dev login: {body.email}")
+    return AuthVerifyResponse(token=session_token, user_id=user.id, email=user.email)
+
+
 @router.post("/logout", response_model=MagicLinkResponse)
 async def logout(current_user: User = Depends(get_current_user)):
     """End the current session.

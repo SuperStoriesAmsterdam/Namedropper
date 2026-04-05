@@ -49,7 +49,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/magic-link", {
+      const response = await fetch("/api/auth/dev-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -58,11 +58,12 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data?.detail?.message || "Could not send login link.");
+        setError(data?.detail?.message || "Could not log in.");
         return;
       }
 
-      setSent(true);
+      login(data.token, { id: data.user_id, email: data.email });
+      navigate("/dashboard", { replace: true });
     } catch {
       setError("Could not connect to the server.");
     } finally {
@@ -128,7 +129,7 @@ export default function Login() {
                 disabled={loading}
                 className="mt-4 w-full bg-brand-red text-white py-3 px-4 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Sending..." : "Send login link"}
+                {loading ? "Logging in..." : "Log in"}
               </button>
             </form>
           )}
