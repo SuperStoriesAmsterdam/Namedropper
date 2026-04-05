@@ -55,8 +55,9 @@ services:
   db:
     image: postgres:15-alpine
     volumes:
-      - pgdata5:/var/lib/postgresql/data
+      - namedropper_pgdata:/var/lib/postgresql/data
     environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: namedropper
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -78,6 +79,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  pgdata5:
+  namedropper_pgdata:
   redisdata:
   uploads:
