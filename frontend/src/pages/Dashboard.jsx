@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { useApi } from "../hooks/useApi";
 
 const STATUS_BADGES = {
   draft: { label: "Draft", className: "bg-gray-100 text-gray-600" },
@@ -14,14 +12,14 @@ export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { user, logout } = useAuth();
-  const { apiFetch } = useApi();
   const navigate = useNavigate();
 
   useEffect(() => {
     async function loadProjects() {
       try {
-        const data = await apiFetch("/projects");
+        const response = await fetch("/api/projects");
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.detail?.message || "Failed to load projects");
         setProjects(data.projects);
       } catch (err) {
         setError(err.message);
@@ -31,7 +29,7 @@ export default function Dashboard() {
     }
 
     loadProjects();
-  }, [apiFetch]);
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -51,13 +49,6 @@ export default function Dashboard() {
             >
               Manual
             </Link>
-            <span className="text-sm text-gray-400">{user?.email}</span>
-            <button
-              onClick={logout}
-              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Log out
-            </button>
           </div>
         </div>
       </header>

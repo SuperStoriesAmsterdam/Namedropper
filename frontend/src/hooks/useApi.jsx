@@ -1,22 +1,15 @@
-import { useAuth } from "./useAuth";
 import { useCallback } from "react";
 
 /**
- * Hook that returns a fetch wrapper with authentication headers.
- * Automatically adds the Bearer token and handles JSON parsing.
+ * Hook that returns a fetch wrapper for API calls.
+ * No auth needed — internal tool.
  */
 export function useApi() {
-  const { token, logout } = useAuth();
-
   const apiFetch = useCallback(
     async (path, options = {}) => {
       const headers = {
         ...(options.headers || {}),
       };
-
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
 
       // Don't set Content-Type for FormData (file uploads)
       if (!(options.body instanceof FormData)) {
@@ -27,11 +20,6 @@ export function useApi() {
         ...options,
         headers,
       });
-
-      if (response.status === 401) {
-        logout();
-        throw new Error("Session expired. Please log in again.");
-      }
 
       if (response.status === 204) {
         return null;
@@ -46,7 +34,7 @@ export function useApi() {
 
       return data;
     },
-    [token, logout]
+    []
   );
 
   return { apiFetch };

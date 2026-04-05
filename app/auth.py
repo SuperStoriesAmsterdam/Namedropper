@@ -122,52 +122,17 @@ def create_session_token(user_id: int, email: str) -> str:
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
-    """FastAPI dependency that extracts and validates the current user from a Bearer token.
+    """Return the default internal user (auth disabled for internal use).
 
-    Use as: current_user = Depends(get_current_user)
-
-    Args:
-        credentials: The Bearer token from the Authorization header.
-        db: The database session.
-
-    Returns:
-        The authenticated User object.
-
-    Raises:
-        HTTPException: If the token is invalid, expired, or the user does not exist.
+    Auto-creates the user on first call.
     """
-    settings = get_settings()
-    token = credentials.credentials
-
-    try:
-        payload = jwt.decode(token, settings.APP_SECRET_KEY, algorithms=["HS256"])
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=401,
-            detail={"code": "SESSION_EXPIRED", "message": "Your session has expired. Please log in again."},
-        )
-    except jwt.InvalidTokenError:
-        raise HTTPException(
-            status_code=401,
-            detail={"code": "INVALID_TOKEN", "message": "Invalid authentication token."},
-        )
-
-    if payload.get("type") != "session":
-        raise HTTPException(
-            status_code=401,
-            detail={"code": "INVALID_TOKEN", "message": "Invalid authentication token."},
-        )
-
-    user_id = int(payload["sub"])
-    user = db.query(User).filter(User.id == user_id).first()
-
+    user = db.query(User).filter(User.email == "team@superstories.com").first()
     if not user:
-        raise HTTPException(
-            status_code=401,
-            detail={"code": "USER_NOT_FOUND", "message": "User account not found."},
-        )
-
+        user = User(email="team@superstories.com")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        logger.info("Created default internal user: team@superstories.com")
     return user
