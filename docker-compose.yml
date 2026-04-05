@@ -19,8 +19,6 @@ services:
     volumes:
       - uploads:/app/uploads
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     restart: unless-stopped
@@ -46,25 +44,8 @@ services:
     volumes:
       - uploads:/app/uploads
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
-
-  db:
-    image: postgres:15-alpine
-    volumes:
-      - namedropper_pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_PASSWORD: namedropper
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
     restart: unless-stopped
 
   redis:
@@ -79,6 +60,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  namedropper_pgdata:
   redisdata:
   uploads:
