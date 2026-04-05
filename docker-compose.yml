@@ -16,6 +16,8 @@ services:
       - APP_BASE_URL=${APP_BASE_URL}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
       - ELEVENLABS_MODEL=${ELEVENLABS_MODEL}
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -41,6 +43,8 @@ services:
       - APP_BASE_URL=${APP_BASE_URL}
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
       - ELEVENLABS_MODEL=${ELEVENLABS_MODEL}
+    volumes:
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -51,7 +55,7 @@ services:
   db:
     image: postgres:15-alpine
     volumes:
-      - pgdata4:/var/lib/postgresql/data
+      - pgdata5:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: namedropper
     healthcheck:
@@ -74,5 +78,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  pgdata4:
+  pgdata5:
   redisdata:
+  uploads:

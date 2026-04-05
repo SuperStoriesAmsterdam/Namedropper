@@ -17,15 +17,15 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
 
-    # Cloudflare R2
-    R2_ENDPOINT_URL: str
-    R2_ACCESS_KEY_ID: str
-    R2_SECRET_ACCESS_KEY: str
+    # Cloudflare R2 (optional — local storage used when not set)
+    R2_ENDPOINT_URL: str = ""
+    R2_ACCESS_KEY_ID: str = ""
+    R2_SECRET_ACCESS_KEY: str = ""
     R2_BUCKET_NAME: str = "personalvideo"
-    R2_PUBLIC_URL: str
+    R2_PUBLIC_URL: str = ""
 
-    # Email (Resend)
-    RESEND_API_KEY: str
+    # Email (Resend) — optional for now
+    RESEND_API_KEY: str = ""
     EMAIL_FROM: str = "noreply@superstories.nl"
 
     # Auth
