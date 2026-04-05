@@ -54,6 +54,13 @@ services:
       - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
+    command: >
+      sh -c "
+        if [ -f /var/lib/postgresql/data/pg_hba.conf ]; then
+          sed -i 's/scram-sha-256/trust/g' /var/lib/postgresql/data/pg_hba.conf;
+        fi &&
+        exec docker-entrypoint.sh postgres
+      "
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
