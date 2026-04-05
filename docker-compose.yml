@@ -53,11 +53,9 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: namedropper
-      POSTGRES_USER: namedropper
       POSTGRES_PASSWORD: HappyNamedropper
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U namedropper"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
