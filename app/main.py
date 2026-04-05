@@ -28,6 +28,16 @@ static_dir = Path(__file__).resolve().parent.parent / "static"
 async def lifespan(app: FastAPI):
     """Run startup and shutdown tasks for the application."""
     logger.info("Namedropper application starting up")
+
+    # Ensure tables exist even if alembic migration failed
+    try:
+        from app.database import engine, Base
+        from app.models import User, VideoProject, PersonalizedVideo  # noqa: F401 — register models
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables verified/created")
+    except Exception as e:
+        logger.error(f"Could not create database tables: {e}")
+
     yield
     logger.info("Namedropper application shutting down")
 
