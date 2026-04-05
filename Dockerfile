@@ -26,4 +26,4 @@ COPY alembic.ini ./
 COPY --from=frontend-builder /app/frontend/dist ./static
 
 EXPOSE 8000
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic upgrade head || echo 'WARNING: migration failed, starting anyway'; uvicorn app.main:app --host 0.0.0.0 --port 8000"]

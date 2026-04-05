@@ -50,16 +50,8 @@ services:
 
   db:
     image: postgres:15-alpine
-    entrypoint:
-      - sh
-      - -c
-      - |
-        echo 'local all all trust' > /tmp/pg_hba.conf
-        echo 'host all all 0.0.0.0/0 trust' >> /tmp/pg_hba.conf
-        echo 'host all all ::/0 trust' >> /tmp/pg_hba.conf
-        exec docker-entrypoint.sh postgres -c hba_file=/tmp/pg_hba.conf
     volumes:
-      - pgdata3:/var/lib/postgresql/data
+      - pgdata4:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
@@ -82,5 +74,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  pgdata3:
+  pgdata4:
   redisdata:
