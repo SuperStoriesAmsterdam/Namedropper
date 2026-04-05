@@ -57,12 +57,13 @@ services:
     environment:
       POSTGRES_DB: namedropper
       POSTGRES_USER: namedropper
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: HappyNamedropper
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U namedropper"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
   redis:
