@@ -4,7 +4,8 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.errors import api_exception_handler
@@ -19,6 +20,8 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+static_dir = Path(__file__).resolve().parent.parent / "static"
 
 
 @asynccontextmanager
@@ -50,7 +53,17 @@ async def health_check():
     return {"status": "ok"}
 
 
-# Serve the React frontend — must be last so API routes take priority
-static_dir = Path(__file__).resolve().parent.parent / "static"
+# Serve built frontend assets (JS, CSS, images)
 if static_dir.is_dir():
-    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
+    app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+
+
+@app.get("/{full_path:path}")
+async def serve_spa(request: Request, full_path: str):
+    """Serve index.html for all non-API routes (SPA catch-all)."""
+    # Try to serve an actual file first (favicon, etc.)
+    file_path = static_dir / full_path
+    if file_path.is_file():
+        return FileResponse(file_path)
+    # Otherwise serve index.html for client-side routing
+    return FileResponse(static_dir / "index.html")

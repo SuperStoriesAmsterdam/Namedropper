@@ -4,10 +4,10 @@ import { useAuth } from "../hooks/useAuth";
 import { useApi } from "../hooks/useApi";
 
 const STATUS_BADGES = {
-  draft: { label: "Draft", className: "bg-gray-100 text-gray-700" },
-  processing: { label: "Processing", className: "bg-yellow-100 text-yellow-700" },
-  completed: { label: "Completed", className: "bg-green-100 text-green-700" },
-  failed: { label: "Failed", className: "bg-red-100 text-red-700" },
+  draft: { label: "Draft", className: "bg-gray-100 text-gray-600" },
+  processing: { label: "Processing", className: "bg-amber-50 text-amber-700 border border-amber-200" },
+  completed: { label: "Completed", className: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+  failed: { label: "Failed", className: "bg-red-50 text-red-700 border border-red-200" },
 };
 
 export default function Dashboard() {
@@ -36,14 +36,25 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-heading font-bold">Namedropper</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">{user?.email}</span>
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center">
+              <span className="text-white font-heading font-bold text-sm">N</span>
+            </div>
+            <h1 className="text-xl font-heading font-bold tracking-tight">Namedropper</h1>
+          </div>
+          <div className="flex items-center gap-5">
+            <Link
+              to="/manual"
+              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Manual
+            </Link>
+            <span className="text-sm text-gray-400">{user?.email}</span>
             <button
               onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
             >
               Log out
             </button>
@@ -52,62 +63,112 @@ export default function Dashboard() {
       </header>
 
       {/* Content */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-heading font-semibold">Your projects</h2>
-          <Link
-            to="/projects/new"
-            className="bg-brand-red text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
-          >
+      <main className="max-w-5xl mx-auto px-6 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-heading font-bold tracking-tight">Your projects</h2>
+            <p className="text-gray-400 text-sm mt-1">Create personalized videos at scale</p>
+          </div>
+          <Link to="/projects/new" className="btn-primary flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
             New project
           </Link>
         </div>
 
-        {loading && <p className="text-gray-500">Loading projects...</p>}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <svg className="animate-spin w-6 h-6 text-brand-red" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          </div>
+        )}
 
-        {error && <p className="text-red-600">{error}</p>}
+        {error && (
+          <div className="card p-4 border-red-200 bg-red-50 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
 
         {!loading && projects.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-            <p className="text-gray-500 mb-4">No projects yet.</p>
-            <Link
-              to="/projects/new"
-              className="text-brand-red hover:underline font-medium"
-            >
-              Create your first personalized video
+          <div className="card text-center py-20 px-8">
+            <div className="w-16 h-16 bg-brand-peach rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <svg className="w-8 h-8 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <h3 className="font-heading font-semibold text-lg text-gray-900 mb-2">
+              No projects yet
+            </h3>
+            <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+              Upload a video, add names, and Namedropper creates a personalized version for each person.
+            </p>
+            <Link to="/projects/new" className="btn-primary inline-flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Create your first project
             </Link>
           </div>
         )}
 
         {!loading && projects.length > 0 && (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {projects.map((project) => {
               const badge = STATUS_BADGES[project.status] || STATUS_BADGES.draft;
+              const progress = project.total_names > 0
+                ? Math.round((project.completed_names / project.total_names) * 100)
+                : 0;
 
               return (
                 <button
                   key={project.id}
                   onClick={() => navigate(`/projects/${project.id}`)}
-                  className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-gray-300 hover:shadow-sm transition-all w-full"
+                  className="card-hover p-5 text-left w-full group"
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-heading font-semibold text-lg">
-                        {project.title || `Project #${project.id}`}
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {project.total_names} names
-                        {project.completed_names > 0 &&
-                          ` · ${project.completed_names} completed`}
-                        {" · "}
-                        {new Date(project.created_at).toLocaleDateString()}
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-heading font-semibold text-lg truncate">
+                          {project.title || `Project #${project.id}`}
+                        </h3>
+                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${badge.className}`}>
+                          {badge.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className="text-sm text-gray-400">
+                          {project.total_names} names
+                        </span>
+                        {project.completed_names > 0 && (
+                          <>
+                            <span className="text-gray-200">|</span>
+                            <span className="text-sm text-gray-400">
+                              {project.completed_names} completed
+                            </span>
+                          </>
+                        )}
+                        <span className="text-gray-200">|</span>
+                        <span className="text-sm text-gray-400">
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {project.status === "processing" && project.total_names > 0 && (
+                        <div className="mt-3 w-full max-w-xs">
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-brand-red rounded-full transition-all duration-500"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <span
-                      className={`text-xs font-medium px-2.5 py-1 rounded-full ${badge.className}`}
-                    >
-                      {badge.label}
-                    </span>
+                    <svg className="w-5 h-5 text-gray-300 group-hover:text-gray-500 transition-colors ml-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </button>
               );

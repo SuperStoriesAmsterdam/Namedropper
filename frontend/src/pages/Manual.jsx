@@ -1,405 +1,341 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+function StepCard({ number, title, children }) {
+  return (
+    <div className="flex gap-5">
+      <div className="flex-shrink-0">
+        <div className="w-10 h-10 bg-brand-red rounded-xl flex items-center justify-center shadow-sm">
+          <span className="text-white font-heading font-bold">{number}</span>
+        </div>
+      </div>
+      <div className="flex-1 pb-8 border-b border-gray-100 last:border-0">
+        <h3 className="font-heading font-semibold text-lg mb-2">{title}</h3>
+        <div className="text-gray-500 space-y-2">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function TipBox({ children }) {
+  return (
+    <div className="flex gap-3 bg-brand-warm rounded-xl p-4 text-sm text-gray-600 mt-3">
+      <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+      </svg>
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function TroubleshootItem({ title, children }) {
+  return (
+    <div className="flex gap-4 py-4 border-b border-gray-100 last:border-0">
+      <div className="flex-shrink-0 mt-1">
+        <div className="w-6 h-6 bg-red-50 rounded-full flex items-center justify-center">
+          <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+      </div>
+      <div>
+        <p className="font-medium text-gray-900 mb-1">{title}</p>
+        <p className="text-gray-500 text-sm">{children}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Manual() {
   const { token } = useAuth();
 
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             to={token ? "/dashboard" : "/"}
-            className="text-xl font-heading font-bold"
+            className="flex items-center gap-3"
           >
-            Namedropper
+            <div className="w-8 h-8 bg-brand-red rounded-lg flex items-center justify-center">
+              <span className="text-white font-heading font-bold text-sm">N</span>
+            </div>
+            <span className="font-heading font-bold tracking-tight">Namedropper</span>
           </Link>
+          {token && (
+            <Link to="/dashboard" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+              Back to dashboard
+            </Link>
+          )}
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-8 space-y-8">
-          {/* Greeting */}
-          <div>
-            <h1 className="text-3xl font-heading font-bold text-gray-900 mb-3">
-              Hi Lavinia
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Welcome to Namedropper. This manual walks you through every step,
-              from recording your video to downloading the personalized
-              versions. It is simpler than it looks — you will have it down
-              after the first time.
-            </p>
+      <main className="max-w-3xl mx-auto px-6 py-10">
+        {/* Hero */}
+        <div className="card p-10 mb-8 bg-gradient-to-br from-white to-brand-warm/30">
+          <h1 className="text-3xl font-heading font-bold text-gray-900 mb-3 tracking-tight">
+            Hi Lavinia
+          </h1>
+          <p className="text-gray-500 text-lg leading-relaxed max-w-xl">
+            Welcome to Namedropper. This manual walks you through every step,
+            from recording your video to downloading the personalized
+            versions. It is simpler than it looks — you will have it down
+            after the first time.
+          </p>
+        </div>
+
+        {/* What Namedropper does */}
+        <div className="card p-8 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-heading font-bold">What Namedropper does</h2>
           </div>
-
-          <hr className="border-gray-200" />
-
-          {/* What Namedropper does */}
-          <div>
-            <h2 className="text-xl font-heading font-semibold mb-3">
-              What Namedropper does
-            </h2>
-            <p className="text-gray-600 mb-3">
-              You record a short video where you leave a pause for the
-              recipient's name. Namedropper clones your voice, speaks each
-              name in that voice, and inserts it into the pause. The result:
-              every person gets a video where you personally say their name.
-            </p>
+          <p className="text-gray-500 mb-4 leading-relaxed">
+            You record a short video where you leave a pause for the
+            recipient's name. Namedropper clones your voice, speaks each
+            name in that voice, and inserts it into the pause. The result:
+            every person gets a video where you personally say their name.
+          </p>
+          <div className="bg-gray-50 rounded-xl p-5 text-sm">
             <p className="text-gray-600">
-              <strong>Example:</strong> You record{" "}
-              <em>
+              <span className="font-semibold text-gray-900">Example: </span>
+              You record{" "}
+              <em className="text-brand-red">
                 "Hi ... [2-second pause] ... thanks for taking 5 minutes to
                 share your perspective."
               </em>{" "}
-              Namedropper turns that into "Hi Maria, thanks for taking 5
-              minutes...", "Hi Thomas, thanks for taking 5 minutes...", and so
+              Namedropper turns that into "Hi Maria, thanks for...", "Hi Thomas, thanks for...", and so
               on — for every name on your list.
             </p>
           </div>
+        </div>
 
-          <hr className="border-gray-200" />
+        {/* What you need */}
+        <div className="card p-8 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-heading font-bold">What you need before you start</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-heading font-bold text-gray-500">1</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">A recorded video</p>
+                <p className="text-sm text-gray-500 mt-0.5">MP4, MOV, or WebM. Max 60 seconds, max 50 MB. Record on your phone, laptop, or any camera. Must have audio.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-heading font-bold text-gray-500">2</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">A clear pause in the video</p>
+                <p className="text-sm text-gray-500 mt-0.5">Stop talking for about 2 seconds where you want the name inserted. Just pause naturally.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-heading font-bold text-gray-500">3</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">A list of first names</p>
+                <p className="text-sm text-gray-500 mt-0.5">Up to 500 names per batch.</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* What you need */}
-          <div>
-            <h2 className="text-xl font-heading font-semibold mb-3">
-              What you need before you start
-            </h2>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold">1.</span>
-                <span>
-                  <strong>A recorded video</strong> (MP4, MOV, or WebM). Max 60
-                  seconds, max 50 MB. Record it on your phone, laptop, or any
-                  camera. Make sure it has audio — a silent video will not work.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold">2.</span>
-                <span>
-                  <strong>A clear pause in the video</strong> where the name
-                  should go. Just stop talking for about 2 seconds at the spot
-                  where you want the name inserted. You do not need to do
-                  anything special — just pause naturally.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold">3.</span>
-                <span>
-                  <strong>A list of first names</strong>. You can have up to 500
-                  names per batch.
-                </span>
-              </li>
-            </ul>
+        {/* Step by step */}
+        <div className="card p-8 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-heading font-bold">Step by step</h2>
           </div>
 
-          <hr className="border-gray-200" />
-
-          {/* Step by step */}
-          <div>
-            <h2 className="text-xl font-heading font-semibold mb-4">
-              Step by step
-            </h2>
-
-            {/* Step 1 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  1
-                </span>
-                Log in
-              </h3>
-              <p className="text-gray-600 ml-9">
+          <div className="space-y-6">
+            <StepCard number="1" title="Log in">
+              <p>
                 Go to the Namedropper website. Enter your email address and
-                click <strong>"Send login link"</strong>. Check your inbox —
-                you will receive an email with a link. Click the link and you
-                are logged in. No password needed, ever.
+                click <strong className="text-gray-900">"Log in"</strong>. You are in — no password needed.
               </p>
-            </div>
+            </StepCard>
 
-            {/* Step 2 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  2
-                </span>
-                Create a new project
-              </h3>
-              <p className="text-gray-600 ml-9">
-                On the dashboard, click <strong>"New project"</strong>. You
-                will see a 4-step wizard. Just follow it — each step explains
+            <StepCard number="2" title="Create a new project">
+              <p>
+                On the dashboard, click <strong className="text-gray-900">"New project"</strong>. You
+                will see a step-by-step wizard. Just follow it — each step explains
                 what to do.
               </p>
-            </div>
+            </StepCard>
 
-            {/* Step 3 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  3
-                </span>
-                Upload your video
-              </h3>
-              <p className="text-gray-600 ml-9 mb-2">
+            <StepCard number="3" title="Upload your video">
+              <p>
                 Click the upload area and select your video file. The tool
                 checks that the file is valid (right format, not too large).
                 After uploading, you can play it back to double-check.
               </p>
-              <div className="ml-9 bg-gray-50 rounded-lg p-4 text-sm text-gray-500">
-                <strong>Tip:</strong> Record in a quiet room. The voice
-                cloning works best with clean audio. Background noise will not
-                break it, but the cleaner the recording, the more natural the
-                result.
-              </div>
-            </div>
+              <TipBox>
+                Record in a quiet room. The voice cloning works best with clean audio. Background noise will not break it, but the cleaner the recording, the more natural the result.
+              </TipBox>
+            </StepCard>
 
-            {/* Step 4 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  4
-                </span>
-                Set the pause point
-              </h3>
-              <p className="text-gray-600 ml-9 mb-2">
+            <StepCard number="4" title="Set the pause point">
+              <p>
                 Play your video and note the exact second where the pause
                 starts. Enter that number. For example, if you say "Hi" and
-                then pause at the 2-second mark, type <strong>2</strong> (or
+                then pause at the 2-second mark, type <strong className="text-gray-900">2</strong> (or
                 2.5 if it is between seconds).
               </p>
-              <p className="text-gray-600 ml-9">
-                You can also give the project a name here (optional but
-                helpful if you create multiple projects).
+              <p>
+                You can also give the project a name here (optional but helpful if you create multiple projects).
               </p>
-              <div className="ml-9 bg-gray-50 rounded-lg p-4 text-sm text-gray-500 mt-2">
-                <strong>Tip:</strong> You can play the video right there on
-                the page while you figure out the timestamp. Take your time to
-                get it right — it determines where the name gets inserted.
-              </div>
-            </div>
+              <TipBox>
+                You can play the video right there on the page while you figure out the timestamp. Take your time to get it right — it determines where the name gets inserted.
+              </TipBox>
+            </StepCard>
 
-            {/* Step 5 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  5
-                </span>
-                Add names
-              </h3>
-              <p className="text-gray-600 ml-9 mb-2">
-                Type or paste your list of first names, one per line. The tool
-                automatically:
+            <StepCard number="5" title="Add names">
+              <p>
+                Type or paste your list of first names, one per line. The tool automatically:
               </p>
-              <ul className="text-gray-600 ml-9 list-disc list-inside space-y-1">
+              <ul className="list-disc list-inside space-y-1 ml-1 text-gray-500">
                 <li>Capitalizes the first letter of each name</li>
                 <li>Removes duplicates</li>
                 <li>Strips extra spaces</li>
               </ul>
-              <p className="text-gray-600 ml-9 mt-2">
-                You will see the cleaned list before confirming.
-              </p>
-            </div>
+              <p>You will see the cleaned list before confirming.</p>
+            </StepCard>
 
-            {/* Step 6 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  6
-                </span>
-                Review and generate
-              </h3>
-              <p className="text-gray-600 ml-9">
+            <StepCard number="6" title="Review and generate">
+              <p>
                 You see a summary: the project name, the pause timestamp, and
                 the full name list. If everything looks right, click{" "}
-                <strong>"Generate X videos"</strong>. Namedropper starts
-                working.
+                <strong className="text-gray-900">"Generate X videos"</strong>. Namedropper starts working.
               </p>
-            </div>
+            </StepCard>
 
-            {/* Step 7 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  7
-                </span>
-                Wait for processing
-              </h3>
-              <p className="text-gray-600 ml-9 mb-2">
+            <StepCard number="7" title="Wait for processing">
+              <p>
                 You are taken to the project page, which shows a live progress
                 bar. Each name goes through these stages:
               </p>
-              <ul className="text-gray-600 ml-9 space-y-1">
-                <li>
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-400 mr-2" />
-                  <strong>Pending</strong> — in the queue
-                </li>
-                <li>
-                  <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2" />
-                  <strong>Generating audio</strong> — the voice clone is
-                  speaking the name
-                </li>
-                <li>
-                  <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-2" />
-                  <strong>Splicing</strong> — inserting the name into the video
-                </li>
-                <li>
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2" />
-                  <strong>Completed</strong> — ready to preview and download
-                </li>
-              </ul>
-              <p className="text-gray-600 ml-9 mt-2">
+              <div className="space-y-2 mt-2">
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-gray-300" />
+                  <span><strong className="text-gray-700">Pending</strong> — in the queue</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <span><strong className="text-gray-700">Generating audio</strong> — the voice clone is speaking the name</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <span><strong className="text-gray-700">Splicing</strong> — inserting the name into the video</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span><strong className="text-gray-700">Completed</strong> — ready to preview and download</span>
+                </div>
+              </div>
+              <p className="mt-3">
                 Processing takes about 3-5 seconds per name. So 50 names takes
                 roughly 3-4 minutes. You can leave the page open and it
                 updates automatically — no need to refresh.
               </p>
-              <div className="ml-9 bg-gray-50 rounded-lg p-4 text-sm text-gray-500 mt-2">
-                <strong>Note:</strong> You will also receive an email when the
-                entire batch is finished, so you do not have to sit and watch.
-              </div>
-            </div>
+              <TipBox>
+                You will also receive an email when the entire batch is finished, so you do not have to sit and watch.
+              </TipBox>
+            </StepCard>
 
-            {/* Step 8 */}
-            <div className="mb-6">
-              <h3 className="font-heading font-semibold text-lg mb-2">
-                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-brand-red text-white text-sm font-bold mr-2">
-                  8
-                </span>
-                Preview and download
-              </h3>
-              <p className="text-gray-600 ml-9 mb-2">
-                Once a name is completed, you can:
-              </p>
-              <ul className="text-gray-600 ml-9 list-disc list-inside space-y-1">
-                <li>
-                  <strong>Play it</strong> in the browser — click the video
-                  player on the card
-                </li>
-                <li>
-                  <strong>Download one video</strong> — click "Download" under
-                  the player
-                </li>
-                <li>
-                  <strong>Download all</strong> — click the "Download all"
-                  button at the top right to get a ZIP file with every
-                  completed video
-                </li>
+            <StepCard number="8" title="Preview and download">
+              <p>Once a name is completed, you can:</p>
+              <ul className="list-disc list-inside space-y-1 ml-1 text-gray-500">
+                <li><strong className="text-gray-700">Play it</strong> in the browser — click the video player on the card</li>
+                <li><strong className="text-gray-700">Download one video</strong> — click "Download" under the player</li>
+                <li><strong className="text-gray-700">Download all</strong> — click the "Download all" button for a ZIP file with every completed video</li>
               </ul>
-              <p className="text-gray-600 ml-9 mt-2">
+              <p className="mt-2">
                 Each file is named after the person:{" "}
-                <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">
-                  Maria.mp4
-                </code>
-                ,{" "}
-                <code className="bg-gray-100 px-1.5 py-0.5 rounded text-sm">
-                  Thomas.mp4
-                </code>
-                , etc.
+                <code className="bg-gray-100 px-2 py-0.5 rounded-md text-sm text-brand-red">Maria.mp4</code>,{" "}
+                <code className="bg-gray-100 px-2 py-0.5 rounded-md text-sm text-brand-red">Thomas.mp4</code>, etc.
               </p>
+            </StepCard>
+          </div>
+        </div>
+
+        {/* Troubleshooting */}
+        <div className="card p-8 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384 3.073A.75.75 0 015 17.622V6.378a.75.75 0 011.036-.62l5.384 3.073m0 6.339l5.384 3.073A.75.75 0 0017.964 17.622V6.378a.75.75 0 00-1.036-.62l-5.384 3.073" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-heading font-bold">If something goes wrong</h2>
+          </div>
+
+          <TroubleshootItem title={'"Video file exceeds the 50 MB limit"'}>
+            Your video is too large. Try compressing it (most phones save in high resolution by default) or making it shorter. 60 seconds in 1080p is usually well under 50 MB.
+          </TroubleshootItem>
+          <TroubleshootItem title={'"Video must be at least 10 seconds"'}>
+            The voice cloning needs enough audio to learn your voice. Record at least 10 seconds — ideally 20-30 seconds — for the best results.
+          </TroubleshootItem>
+          <TroubleshootItem title={'A name shows "Failed" with a red badge'}>
+            This usually means the voice generation service had a temporary issue. You can delete the project and create a new one with the same video and names. If it keeps happening, reach out to Peter.
+          </TroubleshootItem>
+          <TroubleshootItem title={"The login link in my email does not work"}>
+            Login links expire after 15 minutes and can only be used once. If yours expired, just go back to the login page and request a new one.
+          </TroubleshootItem>
+        </div>
+
+        {/* Tips */}
+        <div className="card p-8 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-brand-peach rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-brand-red" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-heading font-bold">Tips for the best result</h2>
+          </div>
+          <div className="space-y-4 text-gray-500">
+            <div className="flex gap-3">
+              <span className="text-brand-red mt-1">*</span>
+              <span><strong className="text-gray-900">Keep the pause clean.</strong> Do not trail off or make a sound during the pause. A clean silence gives the best splice.</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-brand-red mt-1">*</span>
+              <span><strong className="text-gray-900">Speak naturally before and after the pause.</strong> The cloned voice matches your tone, so if you sound warm and relaxed, the name will too.</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-brand-red mt-1">*</span>
+              <span><strong className="text-gray-900">Test with 2-3 names first.</strong> Before generating 200 videos, try a small batch to make sure the pause point is right and the result sounds natural.</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-brand-red mt-1">*</span>
+              <span><strong className="text-gray-900">International names work.</strong> The voice engine supports 29 languages. Names like Xiaoming, Priya, or Bjorn will be pronounced correctly.</span>
             </div>
           </div>
+        </div>
 
-          <hr className="border-gray-200" />
-
-          {/* If something goes wrong */}
-          <div>
-            <h2 className="text-xl font-heading font-semibold mb-3">
-              If something goes wrong
-            </h2>
-            <div className="space-y-4 text-gray-600">
-              <div>
-                <p className="font-medium text-gray-900">
-                  "Video file exceeds the 50 MB limit"
-                </p>
-                <p>
-                  Your video is too large. Try compressing it (most phones save
-                  in high resolution by default) or making it shorter. 60
-                  seconds in 1080p is usually well under 50 MB.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">
-                  "Video must be at least 10 seconds"
-                </p>
-                <p>
-                  The voice cloning needs enough audio to learn your voice.
-                  Record at least 10 seconds — ideally 20-30 seconds — for
-                  the best results.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">
-                  A name shows "Failed" with a red badge
-                </p>
-                <p>
-                  This usually means the voice generation service had a
-                  temporary issue. You can delete the project and create a new
-                  one with the same video and names. If it keeps happening,
-                  reach out to Peter.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">
-                  The login link in my email does not work
-                </p>
-                <p>
-                  Login links expire after 15 minutes and can only be used
-                  once. If yours expired, just go back to the login page and
-                  request a new one.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <hr className="border-gray-200" />
-
-          {/* Tips */}
-          <div>
-            <h2 className="text-xl font-heading font-semibold mb-3">
-              Tips for the best result
-            </h2>
-            <ul className="space-y-3 text-gray-600">
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold text-lg">*</span>
-                <span>
-                  <strong>Keep the pause clean.</strong> Do not trail off or
-                  make a sound during the pause. A clean silence gives the
-                  best splice.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold text-lg">*</span>
-                <span>
-                  <strong>Speak naturally before and after the pause.</strong>{" "}
-                  The cloned voice matches your tone, so if you sound warm and
-                  relaxed, the name will too.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold text-lg">*</span>
-                <span>
-                  <strong>Test with 2-3 names first.</strong> Before
-                  generating 200 videos, try a small batch to make sure the
-                  pause point is right and the result sounds natural.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="text-brand-red font-bold text-lg">*</span>
-                <span>
-                  <strong>International names work.</strong> The voice engine
-                  supports 29 languages. Names like Xiǎomíng, Priya, or
-                  Björn will be pronounced correctly.
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          <hr className="border-gray-200" />
-
-          <div className="text-center text-sm text-gray-400">
-            <p>
-              Questions? Message Peter. He built this.
-            </p>
-          </div>
+        {/* Footer */}
+        <div className="text-center py-6 text-sm text-gray-400">
+          <p>Questions? Message Peter.</p>
         </div>
       </main>
     </div>
