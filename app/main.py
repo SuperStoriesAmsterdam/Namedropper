@@ -2,8 +2,10 @@
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.errors import api_exception_handler
 from app.routers import auth as auth_router
@@ -46,3 +48,9 @@ app.include_router(videos_router.router)
 async def health_check():
     """Return a simple health check response."""
     return {"status": "ok"}
+
+
+# Serve the React frontend — must be last so API routes take priority
+static_dir = Path(__file__).resolve().parent.parent / "static"
+if static_dir.is_dir():
+    app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
