@@ -10,7 +10,7 @@ import logging
 import tempfile
 from pathlib import Path
 
-from elevenlabs import ElevenLabs
+from elevenlabs.client import ElevenLabs
 
 from app.config import get_settings
 
