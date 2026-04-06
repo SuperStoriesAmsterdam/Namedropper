@@ -2,13 +2,18 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 
-const STEPS = ["Upload video", "Set pause point", "Add names", "Review"];
+const STEPS = ["Upload files", "Set pause point", "Add names", "Review"];
 
 export default function NewProject() {
   const [step, setStep] = useState(0);
+  // Voice sample
+  const [voiceFile, setVoiceFile] = useState(null);
+  const [voiceUrl, setVoiceUrl] = useState("");
+  // Video
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
+  // Other state
   const [pauseSeconds, setPauseSeconds] = useState("");
   const [title, setTitle] = useState("");
   const [namesText, setNamesText] = useState("");
@@ -19,16 +24,41 @@ export default function NewProject() {
   const { apiFetch } = useApi();
   const navigate = useNavigate();
 
-  // ── Step 1: Upload video ──────────────────────────────────
+  // ── Step 1: Upload voice sample + video ───────────────────
+
+  function handleVoiceSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    setError("");
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Voice sample exceeds the 10 MB limit.");
+      return;
+    }
+
+    const validTypes = [
+      "audio/mpeg",
+      "audio/wav",
+      "audio/mp4",
+      "audio/x-m4a",
+      "audio/ogg",
+      "audio/webm",
+    ];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|ogg|webm)$/i)) {
+      setError("Unsupported format. Please upload MP3, WAV, M4A, OGG, or WebM.");
+      return;
+    }
+
+    setVoiceFile(file);
+  }
 
   function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     setError("");
 
     if (file.size > 50 * 1024 * 1024) {
-      setError("File exceeds the 50 MB limit.");
+      setError("Video exceeds the 50 MB limit.");
       return;
     }
 
@@ -43,21 +73,30 @@ export default function NewProject() {
   }
 
   async function handleUpload() {
-    if (!videoFile) return;
+    if (!voiceFile || !videoFile) return;
 
     setError("");
     setUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", videoFile);
-
-      const data = await apiFetch("/upload/video", {
+      // Upload voice sample
+      const voiceFormData = new FormData();
+      voiceFormData.append("file", voiceFile);
+      const voiceData = await apiFetch("/upload/voice", {
         method: "POST",
-        body: formData,
+        body: voiceFormData,
       });
+      setVoiceUrl(voiceData.url);
 
-      setVideoUrl(data.url);
+      // Upload video
+      const videoFormData = new FormData();
+      videoFormData.append("file", videoFile);
+      const videoData = await apiFetch("/upload/video", {
+        method: "POST",
+        body: videoFormData,
+      });
+      setVideoUrl(videoData.url);
+
       setStep(1);
     } catch (err) {
       setError(err.message);
@@ -100,12 +139,10 @@ export default function NewProject() {
       return;
     }
 
-    // Clean: capitalize first letter, deduplicate
     const seen = new Set();
     const cleaned = [];
     for (const name of lines) {
-      const capitalized =
-        name.charAt(0).toUpperCase() + name.slice(1);
+      const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
       const key = capitalized.toLowerCase();
       if (!seen.has(key)) {
         seen.add(key);
@@ -124,23 +161,21 @@ export default function NewProject() {
     setCreating(true);
 
     try {
-      // Create the project
       const project = await apiFetch("/projects", {
         method: "POST",
         body: JSON.stringify({
+          voice_sample_url: voiceUrl,
           source_video_url: videoUrl,
           pause_timestamp_ms: Math.round(parseFloat(pauseSeconds) * 1000),
           title: title || null,
         }),
       });
 
-      // Add names
       await apiFetch(`/projects/${project.id}/names`, {
         method: "POST",
         body: JSON.stringify({ names: cleanedNames }),
       });
 
-      // Start generation
       await apiFetch(`/projects/${project.id}/generate`, {
         method: "POST",
       });
@@ -193,67 +228,120 @@ export default function NewProject() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-8">
-          {/* ── Step 1: Upload ── */}
+          {/* ── Step 1: Upload files ── */}
           {step === 0 && (
             <div>
               <h2 className="text-xl font-heading font-semibold mb-2">
-                Upload your video
+                Upload your files
               </h2>
               <p className="text-gray-600 mb-6">
-                Record a short video (max 60 seconds) with a deliberate pause
-                where names will be inserted. Example: "Hi ... [pause] ...
-                thanks for taking 5 minutes to share your perspective."
+                Upload a voice sample (for cloning your voice) and your video
+                (with a pause where names will be inserted).
               </p>
 
-              {!videoFile ? (
-                <label className="block border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-gray-400 transition-colors">
-                  <input
-                    type="file"
-                    accept="video/mp4,video/quicktime,video/webm"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  <p className="text-gray-500">
-                    Click to select a video file
-                  </p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    MP4, MOV, or WebM · Max 50 MB · Max 60 seconds
-                  </p>
+              {/* Voice sample */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Voice sample (audio)
                 </label>
-              ) : (
-                <div>
-                  {videoPreviewUrl && (
-                    <video
-                      src={videoPreviewUrl}
-                      controls
-                      className="w-full rounded-lg mb-4 max-h-80 bg-black"
+                <p className="text-xs text-gray-400 mb-2">
+                  Record at least 30 seconds of yourself speaking clearly.
+                  MP3, WAV, M4A, OGG, or WebM. Max 10 MB.
+                </p>
+                {!voiceFile ? (
+                  <label className="block border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="audio/mpeg,audio/wav,audio/mp4,audio/x-m4a,audio/ogg,audio/webm,.mp3,.wav,.m4a,.ogg"
+                      onChange={handleVoiceSelect}
+                      className="hidden"
                     />
-                  )}
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                      {videoFile.name} (
-                      {(videoFile.size / 1024 / 1024).toFixed(1)} MB)
-                    </p>
+                    <div className="flex flex-col items-center gap-2">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                      </svg>
+                      <p className="text-gray-500">Click to select a voice sample</p>
+                    </div>
+                  </label>
+                ) : (
+                  <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm text-gray-600">
+                        {voiceFile.name} ({(voiceFile.size / 1024 / 1024).toFixed(1)} MB)
+                      </span>
+                    </div>
                     <button
-                      onClick={() => {
-                        setVideoFile(null);
-                        setVideoPreviewUrl("");
-                      }}
+                      onClick={() => setVoiceFile(null)}
                       className="text-sm text-gray-500 hover:text-gray-700"
                     >
                       Change
                     </button>
                   </div>
+                )}
+              </div>
 
-                  <button
-                    onClick={handleUpload}
-                    disabled={uploading}
-                    className="mt-4 w-full bg-brand-red text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
-                  >
-                    {uploading ? "Uploading..." : "Upload and continue"}
-                  </button>
-                </div>
-              )}
+              {/* Video */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Video
+                </label>
+                <p className="text-xs text-gray-400 mb-2">
+                  Your video with a deliberate pause where names will be
+                  inserted. MP4, MOV, or WebM. Max 60 seconds, max 50 MB.
+                  Does not need to contain speech.
+                </p>
+                {!videoFile ? (
+                  <label className="block border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-gray-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/webm"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <div className="flex flex-col items-center gap-2">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      <p className="text-gray-500">Click to select a video file</p>
+                    </div>
+                  </label>
+                ) : (
+                  <div>
+                    {videoPreviewUrl && (
+                      <video
+                        src={videoPreviewUrl}
+                        controls
+                        className="w-full rounded-lg mb-3 max-h-64 bg-black"
+                      />
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">
+                        {videoFile.name} ({(videoFile.size / 1024 / 1024).toFixed(1)} MB)
+                      </span>
+                      <button
+                        onClick={() => {
+                          setVideoFile(null);
+                          setVideoPreviewUrl("");
+                        }}
+                        className="text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleUpload}
+                disabled={!voiceFile || !videoFile || uploading}
+                className="w-full bg-brand-red text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {uploading ? "Uploading..." : "Upload and continue"}
+              </button>
             </div>
           )}
 
@@ -264,7 +352,7 @@ export default function NewProject() {
                 Where does the pause start?
               </h2>
               <p className="text-gray-600 mb-6">
-                Play your video above and note the second where the pause for
+                Play your video and note the second where the pause for
                 the name begins.
               </p>
 
@@ -354,6 +442,10 @@ export default function NewProject() {
                   <span className="font-medium">
                     {title || "Untitled project"}
                   </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Voice sample</span>
+                  <span className="font-medium text-emerald-600">Uploaded</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Pause at</span>

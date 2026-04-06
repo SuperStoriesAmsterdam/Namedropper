@@ -51,6 +51,7 @@ class UploadResponse(BaseModel):
 
 class ProjectCreate(BaseModel):
     """Request body for creating a new video project."""
+    voice_sample_url: str
     source_video_url: str
     pause_timestamp_ms: int
     title: Optional[str] = None
@@ -81,6 +82,7 @@ class ProjectUpdate(BaseModel):
 class ProjectResponse(BaseModel):
     """Response for a single video project."""
     id: int
+    voice_sample_url: Optional[str]
     source_video_url: str
     source_audio_url: Optional[str]
     duration_seconds: Optional[float]

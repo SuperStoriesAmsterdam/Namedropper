@@ -32,7 +32,8 @@ class VideoProject(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
-    # Source video
+    # Source files
+    voice_sample_url = Column(String, nullable=True)
     source_video_url = Column(String, nullable=False)
     source_audio_url = Column(String, nullable=True)
     duration_seconds = Column(Float, nullable=True)

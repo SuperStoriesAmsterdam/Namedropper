@@ -1,7 +1,7 @@
-"""Background job: clone a voice from the source video's audio.
+"""Background job: clone a voice from an uploaded voice sample.
 
-Triggered after a project is created with a source video and pause timestamp.
-Downloads the video, extracts audio, sends to ElevenLabs for cloning.
+Downloads the uploaded voice sample audio and sends it to ElevenLabs
+for cloning. No longer extracts audio from the video.
 """
 
 import logging
@@ -9,24 +9,20 @@ import logging
 from app.database import SessionLocal
 from app.elevenlabs_client import clone_voice as elevenlabs_clone_voice
 from app.models import VideoProject
-from app.storage import download_file, upload_file
-from app.video_processor import extract_audio, get_duration
+from app.storage import download_file
+from app.video_processor import get_duration
 
 logger = logging.getLogger(__name__)
 
-MINIMUM_AUDIO_DURATION_SECONDS = 10
-
 
 async def clone_voice(ctx, project_id: int):
-    """Clone the speaker's voice from the source video.
+    """Clone the speaker's voice from the uploaded voice sample.
 
     Steps:
-    1. Download source video from R2
-    2. Extract audio track (WAV)
-    3. Upload extracted audio to R2 for reference
-    4. Check audio is long enough (min 10 seconds)
-    5. Send audio to ElevenLabs for voice cloning
-    6. Store the voice_id on the project record
+    1. Download voice sample from R2
+    2. Validate video duration and pause timestamp
+    3. Send voice sample to ElevenLabs for voice cloning
+    4. Store the voice_id on the project record
 
     Args:
         ctx: ARQ context (unused but required by ARQ).
@@ -42,15 +38,22 @@ async def clone_voice(ctx, project_id: int):
             logger.error(f"clone_voice: project {project_id} not found")
             return
 
+        if not project.voice_sample_url:
+            project.voice_clone_status = "failed"
+            db.commit()
+            logger.error(f"clone_voice: project {project_id} has no voice sample")
+            return
+
         project.voice_clone_status = "processing"
         db.commit()
 
-        # Step 1: Download source video from R2
-        # Extract the storage key from the full URL
+        # Step 1: Download voice sample from R2
+        voice_key = project.voice_sample_url.split("/personalvideo/")[-1]
+        voice_data = download_file(voice_key)
+
+        # Step 2: Validate video duration and pause timestamp
         source_key = project.source_video_url.split("/personalvideo/")[-1]
         video_data = download_file(source_key)
-
-        # Step 2: Get video duration and validate
         duration = get_duration(video_data)
         project.duration_seconds = duration
         db.commit()
@@ -70,28 +73,10 @@ async def clone_voice(ctx, project_id: int):
             )
             return
 
-        # Step 3: Extract audio
-        audio_data = extract_audio(video_data)
+        # Step 3: Clone voice via ElevenLabs using the voice sample
+        voice_id = elevenlabs_clone_voice(voice_data, project.id)
 
-        if duration < MINIMUM_AUDIO_DURATION_SECONDS:
-            project.voice_clone_status = "failed"
-            db.commit()
-            logger.error(
-                f"clone_voice: project {project_id} audio too short ({duration:.1f}s). "
-                f"Minimum {MINIMUM_AUDIO_DURATION_SECONDS} seconds required for voice cloning."
-            )
-            return
-
-        # Step 4: Upload extracted audio to R2
-        audio_key = f"{project.user_id}/{project.id}/source_audio.wav"
-        audio_url = upload_file(audio_key, audio_data, "audio/wav")
-        project.source_audio_url = audio_url
-        db.commit()
-
-        # Step 5: Clone voice via ElevenLabs
-        voice_id = elevenlabs_clone_voice(audio_data, project.id)
-
-        # Step 6: Store voice_id
+        # Step 4: Store voice_id
         project.elevenlabs_voice_id = voice_id
         project.voice_clone_status = "ready"
         db.commit()

@@ -91,10 +91,11 @@ export default function Manual() {
             <h2 className="text-xl font-heading font-bold">What Namedropper does</h2>
           </div>
           <p className="text-gray-500 mb-4 leading-relaxed">
-            You record a short video where you leave a pause for the
-            recipient's name. Namedropper clones your voice, speaks each
-            name in that voice, and inserts it into the pause. The result:
-            every person gets a video where you personally say their name.
+            You upload a voice sample and a short video with a pause.
+            Namedropper clones your voice from the sample, speaks each
+            name in that voice, and inserts it into the video at the pause.
+            The result: every person gets a video where you personally say
+            their name.
           </p>
           <div className="bg-gray-50 rounded-xl p-5 text-sm">
             <p className="text-gray-600">
@@ -126,8 +127,8 @@ export default function Manual() {
                 <span className="text-xs font-heading font-bold text-gray-500">1</span>
               </div>
               <div>
-                <p className="font-medium text-gray-900">A recorded video</p>
-                <p className="text-sm text-gray-500 mt-0.5">MP4, MOV, or WebM. Max 60 seconds, max 50 MB. Record on your phone, laptop, or any camera. Must have audio.</p>
+                <p className="font-medium text-gray-900">A voice sample</p>
+                <p className="text-sm text-gray-500 mt-0.5">An audio recording of yourself speaking clearly for at least 30 seconds. MP3, WAV, M4A, OGG, or WebM. Max 10 MB. This is used to clone your voice.</p>
               </div>
             </div>
             <div className="flex gap-4">
@@ -135,13 +136,22 @@ export default function Manual() {
                 <span className="text-xs font-heading font-bold text-gray-500">2</span>
               </div>
               <div>
-                <p className="font-medium text-gray-900">A clear pause in the video</p>
-                <p className="text-sm text-gray-500 mt-0.5">Stop talking for about 2 seconds where you want the name inserted. Just pause naturally.</p>
+                <p className="font-medium text-gray-900">A recorded video</p>
+                <p className="text-sm text-gray-500 mt-0.5">MP4, MOV, or WebM. Max 60 seconds, max 50 MB. The video does not need to contain speech — just a visual with a pause where the name will be inserted.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-xs font-heading font-bold text-gray-500">3</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">A clear pause in the video</p>
+                <p className="text-sm text-gray-500 mt-0.5">Leave about 2 seconds of silence where you want the name inserted.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-xs font-heading font-bold text-gray-500">4</span>
               </div>
               <div>
                 <p className="font-medium text-gray-900">A list of first names</p>
@@ -178,14 +188,16 @@ export default function Manual() {
               </p>
             </StepCard>
 
-            <StepCard number="3" title="Upload your video">
+            <StepCard number="3" title="Upload your files">
               <p>
-                Click the upload area and select your video file. The tool
-                checks that the file is valid (right format, not too large).
-                After uploading, you can play it back to double-check.
+                You upload two files in the first step:
               </p>
+              <ul className="list-disc list-inside space-y-1 ml-1 text-gray-500">
+                <li><strong className="text-gray-700">Voice sample</strong> — an audio recording of yourself speaking for at least 30 seconds. This is used to clone your voice. Record it in a quiet room for best results.</li>
+                <li><strong className="text-gray-700">Video</strong> — your video with a pause. The video does not need to contain speech — the voice comes from the sample.</li>
+              </ul>
               <TipBox>
-                Record in a quiet room. The voice cloning works best with clean audio. Background noise will not break it, but the cleaner the recording, the more natural the result.
+                Record your voice sample in a quiet room, speaking naturally. The cleaner the audio, the more natural the cloned voice will sound. Read a paragraph from a book or just talk about your day — it does not matter what you say, only how you sound.
               </TipBox>
             </StepCard>
 
@@ -287,8 +299,8 @@ export default function Manual() {
           <TroubleshootItem title={'"Video file exceeds the 50 MB limit"'}>
             Your video is too large. Try compressing it (most phones save in high resolution by default) or making it shorter. 60 seconds in 1080p is usually well under 50 MB.
           </TroubleshootItem>
-          <TroubleshootItem title={'"Video must be at least 10 seconds"'}>
-            The voice cloning needs enough audio to learn your voice. Record at least 10 seconds — ideally 20-30 seconds — for the best results.
+          <TroubleshootItem title={'"Audio file is too small"'}>
+            The voice cloning needs enough audio to learn your voice. Record at least 30 seconds of clear speech for the best results.
           </TroubleshootItem>
           <TroubleshootItem title={'A name shows "Failed" with a red badge'}>
             This usually means the voice generation service had a temporary issue. You can delete the project and create a new one with the same video and names. If it keeps happening, reach out to Peter.

@@ -66,6 +66,7 @@ async def create_project(
     """Create a new video project from an uploaded source video."""
     project = VideoProject(
         user_id=current_user.id,
+        voice_sample_url=body.voice_sample_url,
         source_video_url=body.source_video_url,
         pause_timestamp_ms=body.pause_timestamp_ms,
         title=body.title,

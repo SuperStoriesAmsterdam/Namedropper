@@ -20,7 +20,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
 MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_VOICE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".webm"}
+ALLOWED_VOICE_EXTENSIONS = {".mp3", ".wav", ".m4a", ".ogg", ".webm"}
 
 # Magic bytes for supported video formats
 MAGIC_BYTES = {
@@ -123,5 +125,77 @@ async def upload_video(
         )
 
     logger.info(f"User {current_user.id} uploaded video: {len(content)} bytes")
+
+    return UploadResponse(url=url, size_bytes=len(content), content_type=content_type)
+
+
+@router.post("/voice", response_model=UploadResponse)
+async def upload_voice(
+    file: UploadFile,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Upload a voice sample (audio file) for voice cloning.
+
+    Accepts MP3, WAV, M4A, OGG, or WebM audio files up to 10 MB.
+    The audio should be at least 10 seconds of clear speech.
+    """
+    filename = file.filename or ""
+    extension = ""
+    if "." in filename:
+        extension = "." + filename.rsplit(".", 1)[1].lower()
+
+    if extension not in ALLOWED_VOICE_EXTENSIONS:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "INVALID_AUDIO_FORMAT",
+                "message": "Unsupported audio format. Accepted: MP3, WAV, M4A, OGG, WebM.",
+            },
+        )
+
+    content = await file.read()
+
+    if len(content) > MAX_VOICE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail={
+                "code": "AUDIO_TOO_LARGE",
+                "message": "Audio file exceeds the 10 MB limit.",
+            },
+        )
+
+    if len(content) < 1000:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "AUDIO_TOO_SMALL",
+                "message": "Audio file is too small. Please upload at least 10 seconds of speech.",
+            },
+        )
+
+    content_type_map = {
+        ".mp3": "audio/mpeg",
+        ".wav": "audio/wav",
+        ".m4a": "audio/mp4",
+        ".ogg": "audio/ogg",
+        ".webm": "audio/webm",
+    }
+    content_type = content_type_map.get(extension, "audio/mpeg")
+
+    storage_key = f"{current_user.id}/voice_sample{extension}"
+    try:
+        url = upload_file(storage_key, content, content_type)
+    except Exception:
+        logger.exception(f"Failed to upload voice sample for user {current_user.id}")
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "code": "UPLOAD_FAILED",
+                "message": "Failed to upload the voice sample. Please try again.",
+            },
+        )
+
+    logger.info(f"User {current_user.id} uploaded voice sample: {len(content)} bytes")
 
     return UploadResponse(url=url, size_bytes=len(content), content_type=content_type)
